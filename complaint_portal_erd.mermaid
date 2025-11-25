@@ -1,0 +1,92 @@
+erDiagram
+    %% Entity Relationship Diagram for Complaint Management Portal
+    %% Created for AI34 IT-119 Web Systems and Technologies
+
+    USERS ||--o{ COMPLAINTS : submits
+    ADMINS ||--o{ COMPLAINT_UPDATES : manages
+    COMPLAINTS ||--o{ COMPLAINT_UPDATES : has
+    COMPLAINT_CATEGORIES ||--o{ COMPLAINTS : categorizes
+    USERS ||--o{ USER_SESSIONS : has
+    ADMINS ||--o{ ADMIN_SESSIONS : has
+
+    USERS {
+        int user_id PK "Auto-increment Primary Key"
+        string username UK "Unique username for login"
+        string email UK "Unique email address"
+        string password "Hashed password"
+        string full_name "User's full name"
+        string contact_number "Contact phone number"
+        string department "User's department/unit"
+        datetime created_at "Registration timestamp"
+        datetime last_login "Last login timestamp"
+        boolean is_active "Account active status"
+    }
+
+    ADMINS {
+        int admin_id PK "Auto-increment Primary Key"
+        string username UK "Unique admin username"
+        string email UK "Unique admin email"
+        string password "Hashed password"
+        string full_name "Admin's full name"
+        string role "Admin role/permission level"
+        datetime created_at "Account creation timestamp"
+        datetime last_login "Last login timestamp"
+        boolean is_active "Account active status"
+    }
+
+    COMPLAINT_CATEGORIES {
+        int category_id PK "Auto-increment Primary Key"
+        string category_name UK "Category name (IT, HR, Maintenance, etc.)"
+        string description "Category description"
+        boolean is_active "Category active status"
+        datetime created_at "Category creation timestamp"
+    }
+
+    COMPLAINTS {
+        int complaint_id PK "Auto-increment Primary Key"
+        int user_id FK "Foreign Key to USERS"
+        int category_id FK "Foreign Key to COMPLAINT_CATEGORIES"
+        string complaint_number UK "Unique complaint tracking number"
+        string subject "Complaint subject/title"
+        text description "Detailed complaint description"
+        string priority "Priority level (Low, Medium, High)"
+        string status "Current status (Pending, In Progress, Resolved)"
+        string location "Location related to complaint"
+        text attachment_path "Path to uploaded files"
+        datetime created_at "Complaint submission timestamp"
+        datetime updated_at "Last update timestamp"
+        datetime resolved_at "Resolution timestamp"
+    }
+
+    COMPLAINT_UPDATES {
+        int update_id PK "Auto-increment Primary Key"
+        int complaint_id FK "Foreign Key to COMPLAINTS"
+        int admin_id FK "Foreign Key to ADMINS"
+        string previous_status "Status before update"
+        string new_status "Updated status"
+        text comments "Admin comments or notes"
+        text resolution_details "Resolution description"
+        datetime created_at "Update timestamp"
+    }
+
+    USER_SESSIONS {
+        int session_id PK "Auto-increment Primary Key"
+        int user_id FK "Foreign Key to USERS"
+        string session_token UK "Unique session token"
+        string ip_address "User IP address"
+        string user_agent "Browser/device information"
+        datetime login_time "Session start time"
+        datetime logout_time "Session end time"
+        boolean is_active "Session active status"
+    }
+
+    ADMIN_SESSIONS {
+        int session_id PK "Auto-increment Primary Key"
+        int admin_id FK "Foreign Key to ADMINS"
+        string session_token UK "Unique session token"
+        string ip_address "Admin IP address"
+        string user_agent "Browser/device information"
+        datetime login_time "Session start time"
+        datetime logout_time "Session end time"
+        boolean is_active "Session active status"
+    }

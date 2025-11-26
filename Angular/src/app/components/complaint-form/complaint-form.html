@@ -1,0 +1,110 @@
+<div class="form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h1>Submit a Complaint</h1>
+      <p>Please provide detailed information about your complaint</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="complaint-form">
+      <div class="form-group">
+        <label for="category">Category *</label>
+        <select
+          id="category"
+          name="category"
+          [(ngModel)]="formData.category_id"
+          [disabled]="isLoading"
+          required
+        >
+          <option value="0">Select a category</option>
+          <option *ngFor="let category of categories" [value]="category.id">
+            {{ category.category_name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="subject">Subject *</label>
+        <input
+          type="text"
+          id="subject"
+          name="subject"
+          [(ngModel)]="formData.subject"
+          placeholder="Brief description of your complaint"
+          [disabled]="isLoading"
+          required
+          maxlength="255"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description *</label>
+        <textarea
+          id="description"
+          name="description"
+          [(ngModel)]="formData.description"
+          placeholder="Provide detailed information about your complaint"
+          [disabled]="isLoading"
+          required
+          rows="6"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="priority">Priority *</label>
+          <select
+            id="priority"
+            name="priority"
+            [(ngModel)]="formData.priority"
+            [disabled]="isLoading"
+            required
+          >
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input
+            type="text"
+            id="location"
+            name="location"
+            [(ngModel)]="formData.location"
+            placeholder="Building, Room, or Area"
+            [disabled]="isLoading"
+            maxlength="255"
+          />
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="cancel-button"
+          (click)="cancel()"
+          [disabled]="isLoading"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="submit-button"
+          [disabled]="isLoading"
+        >
+          <span *ngIf="!isLoading">Submit Complaint</span>
+          <span *ngIf="isLoading">Submitting...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

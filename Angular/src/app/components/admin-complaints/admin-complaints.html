@@ -1,0 +1,94 @@
+<div class="admin-list-container">
+  <div class="list-header">
+    <button class="back-button" (click)="goToDashboard()">← Dashboard</button>
+    <h1>All Complaints</h1>
+  </div>
+
+  <div class="filter-tabs">
+    <button
+      [class.active]="filterStatus === 'all'"
+      (click)="filterByStatus('all')"
+    >
+      All ({{ complaints.length }})
+    </button>
+    <button
+      [class.active]="filterStatus === 'Pending'"
+      (click)="filterByStatus('Pending')"
+    >
+      Pending
+    </button>
+    <button
+      [class.active]="filterStatus === 'In Progress'"
+      (click)="filterByStatus('In Progress')"
+    >
+      In Progress
+    </button>
+    <button
+      [class.active]="filterStatus === 'Resolved'"
+      (click)="filterByStatus('Resolved')"
+    >
+      Resolved
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading complaints...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!isLoading && filteredComplaints.length === 0" class="empty-state">
+    <p>No complaints found.</p>
+  </div>
+
+  <div class="complaint-grid" *ngIf="!isLoading && filteredComplaints.length > 0">
+    <div
+      *ngFor="let complaint of filteredComplaints"
+      class="complaint-card"
+      (click)="viewDetails(complaint.id)"
+    >
+      <div class="card-header">
+        <span class="complaint-number">{{ complaint.complaint_number }}</span>
+        <span [class]="getStatusClass(complaint.status)" class="status-badge">
+          {{ complaint.status }}
+        </span>
+      </div>
+
+      <h3 class="complaint-subject">{{ complaint.subject }}</h3>
+
+      <div class="complaint-meta">
+        <div class="meta-item user-info">
+          <span class="meta-label">Submitted by:</span>
+          <span>{{ complaint.user?.full_name }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Category:</span>
+          <span>{{ complaint.category?.category_name }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Priority:</span>
+          <span [class]="getPriorityClass(complaint.priority)">
+            {{ complaint.priority }}
+          </span>
+        </div>
+        <div class="meta-item" *ngIf="complaint.location">
+          <span class="meta-label">Location:</span>
+          <span>{{ complaint.location }}</span>
+        </div>
+      </div>
+
+      <div class="complaint-description">
+        {{ complaint.description.length > 120 ? complaint.description.substring(0, 120) + '...' : complaint.description }}
+      </div>
+
+      <div class="card-footer">
+        <span class="created-date">
+          {{ complaint.created_at | date:'medium' }}
+        </span>
+        <span class="manage-link">Manage →</span>
+      </div>
+    </div>
+  </div>
+</div>

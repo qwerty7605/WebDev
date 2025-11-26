@@ -1,0 +1,138 @@
+<div class="admin-detail-container" *ngIf="!isLoading && complaint">
+  <button class="back-button" (click)="goBack()">← Back to Complaints</button>
+
+  <div class="detail-wrapper">
+    <div class="complaint-info">
+      <div class="detail-header">
+        <div>
+          <span class="complaint-number">{{ complaint.complaint_number }}</span>
+          <h1>{{ complaint.subject }}</h1>
+        </div>
+        <span [class]="getStatusClass(complaint.status)" class="status-badge-large">
+          {{ complaint.status }}
+        </span>
+      </div>
+
+      <div class="user-card">
+        <h3>Submitted By</h3>
+        <p><strong>Name:</strong> {{ complaint.user?.full_name }}</p>
+        <p><strong>Email:</strong> {{ complaint.user?.email }}</p>
+        <p *ngIf="complaint.user?.department"><strong>Department:</strong> {{ complaint.user?.department }}</p>
+      </div>
+
+      <div class="detail-meta">
+        <div class="meta-item">
+          <span class="label">Category:</span>
+          <span>{{ complaint.category?.category_name }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="label">Priority:</span>
+          <span [class.high]="complaint.priority === 'High'"
+                [class.medium]="complaint.priority === 'Medium'"
+                [class.low]="complaint.priority === 'Low'">
+            {{ complaint.priority }}
+          </span>
+        </div>
+        <div class="meta-item" *ngIf="complaint.location">
+          <span class="label">Location:</span>
+          <span>{{ complaint.location }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="label">Submitted:</span>
+          <span>{{ complaint.created_at | date:'medium' }}</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Description</h3>
+        <p class="description">{{ complaint.description }}</p>
+      </div>
+
+      <div class="detail-section" *ngIf="complaint.updates && complaint.updates.length > 0">
+        <h3>Update History</h3>
+        <div class="updates-list">
+          <div *ngFor="let update of complaint.updates" class="update-item">
+            <div class="update-header">
+              <span class="update-admin">{{ update.admin?.full_name }}</span>
+              <span class="update-date">{{ update.created_at | date:'short' }}</span>
+            </div>
+            <div class="update-status-change">
+              Status changed: <strong>{{ update.previous_status }}</strong> → <strong>{{ update.new_status }}</strong>
+            </div>
+            <div *ngIf="update.comments" class="update-comments">
+              <strong>Comments:</strong> {{ update.comments }}
+            </div>
+            <div *ngIf="update.resolution_details" class="update-resolution">
+              <strong>Resolution:</strong> {{ update.resolution_details }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-panel">
+      <h2>Manage Complaint</h2>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
+
+      <form (ngSubmit)="updateStatus()" class="update-form">
+        <div class="form-group">
+          <label for="status">Update Status</label>
+          <select
+            id="status"
+            name="status"
+            [(ngModel)]="updateForm.status"
+            [disabled]="isUpdating"
+            required
+          >
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="comments">Comments</label>
+          <textarea
+            id="comments"
+            name="comments"
+            [(ngModel)]="updateForm.comments"
+            placeholder="Add comments about this complaint..."
+            [disabled]="isUpdating"
+            rows="4"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="resolution">Resolution Details</label>
+          <textarea
+            id="resolution"
+            name="resolution"
+            [(ngModel)]="updateForm.resolution_details"
+            placeholder="Provide resolution details (required when marking as resolved)..."
+            [disabled]="isUpdating"
+            rows="4"
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          class="update-button"
+          [disabled]="isUpdating"
+        >
+          <span *ngIf="!isUpdating">Update Complaint</span>
+          <span *ngIf="isUpdating">Updating...</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="loading">Loading complaint details...</div>
+<div *ngIf="errorMessage && !complaint" class="error-message">{{ errorMessage }}</div>

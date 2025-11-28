@@ -24,16 +24,19 @@ export class LoginComponent {
 
   onLogin(): void {
     if (!this.username || !this.password) {
-      this.errorMessage = 'Please enter username and password';
+      this.errorMessage = 'Please enter username/email and password';
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = '';
 
+    // Detect if input is email or username
+    const isEmail = this.isEmailFormat(this.username);
+
     const loginMethod = this.loginType === 'admin'
-      ? this.authService.loginAdmin(this.username, this.password)
-      : this.authService.loginUser(this.username, this.password);
+      ? this.authService.loginAdmin(this.username, this.password, isEmail)
+      : this.authService.loginUser(this.username, this.password, isEmail);
 
     loginMethod.subscribe({
       next: (response) => {
@@ -47,6 +50,12 @@ export class LoginComponent {
         this.errorMessage = error.error?.message || 'Login failed. Please check your credentials.';
       }
     });
+  }
+
+  private isEmailFormat(value: string): boolean {
+    // Simple email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(value);
   }
 
   switchLoginType(type: 'user' | 'admin'): void {

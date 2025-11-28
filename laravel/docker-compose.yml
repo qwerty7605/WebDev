@@ -22,12 +22,12 @@ services:
 
   mysql:
     image: mysql:8.0
-    container_name: laravel_mysql
+    container_name: complaint_system_mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: laravel
+      MYSQL_DATABASE: complaint_system
+      MYSQL_USER: complaint_system
+      MYSQL_PASSWORD: complaint_system
     volumes:
       - db_data:/var/lib/mysql
     ports:

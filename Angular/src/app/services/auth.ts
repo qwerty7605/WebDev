@@ -56,12 +56,17 @@ export class AuthService {
       );
   }
 
-  // User Login
-  loginUser(username: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, {
-      username,
-      password
-    }).pipe(
+  // User Login (accepts username or email)
+  loginUser(identifier: string, password: string, isEmail: boolean = false): Observable<AuthResponse> {
+    const payload: any = { password };
+
+    if (isEmail) {
+      payload.email = identifier;
+    } else {
+      payload.username = identifier;
+    }
+
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, payload).pipe(
       tap(response => {
         this.setToken(response.token);
         this.setUserType(response.type);
@@ -70,12 +75,17 @@ export class AuthService {
     );
   }
 
-  // Admin Login
-  loginAdmin(username: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/admin/login`, {
-      username,
-      password
-    }).pipe(
+  // Admin Login (accepts username or email)
+  loginAdmin(identifier: string, password: string, isEmail: boolean = false): Observable<AuthResponse> {
+    const payload: any = { password };
+
+    if (isEmail) {
+      payload.email = identifier;
+    } else {
+      payload.username = identifier;
+    }
+
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/admin/login`, payload).pipe(
       tap(response => {
         this.setToken(response.token);
         this.setUserType(response.type);

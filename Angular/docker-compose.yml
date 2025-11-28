@@ -1,5 +1,5 @@
 services:
-  student-portal:
+  complaint-portal:
     build:
       context: .
     ports:

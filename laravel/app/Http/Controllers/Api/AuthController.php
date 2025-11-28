@@ -62,21 +62,29 @@ class AuthController extends Controller
     public function loginUser(Request $request)
     {
         $request->validate([
-            'username' => 'required|string',
+            'username' => 'required_without:email|string',
+            'email' => 'required_without:username|email',
             'password' => 'required|string',
         ]);
 
-        $user = User::where('username', $request->username)->first();
+        $user = User::where(function($query) use ($request) {
+            if ($request->username) {
+                $query->where('username', $request->username);
+            }
+            if ($request->email) {
+                $query->orWhere('email', $request->email);
+            }
+        })->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'username' => ['The provided credentials are incorrect.'],
+                'credentials' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         if (!$user->is_active) {
             throw ValidationException::withMessages([
-                'username' => ['Your account has been deactivated.'],
+                'credentials' => ['Your account has been deactivated.'],
             ]);
         }
 
@@ -106,21 +114,29 @@ class AuthController extends Controller
     public function loginAdmin(Request $request)
     {
         $request->validate([
-            'username' => 'required|string',
+            'username' => 'required_without:email|string',
+            'email' => 'required_without:username|email',
             'password' => 'required|string',
         ]);
 
-        $admin = Admin::where('username', $request->username)->first();
+        $admin = Admin::where(function($query) use ($request) {
+            if ($request->username) {
+                $query->where('username', $request->username);
+            }
+            if ($request->email) {
+                $query->orWhere('email', $request->email);
+            }
+        })->first();
 
         if (!$admin || !Hash::check($request->password, $admin->password)) {
             throw ValidationException::withMessages([
-                'username' => ['The provided credentials are incorrect.'],
+                'credentials' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         if (!$admin->is_active) {
             throw ValidationException::withMessages([
-                'username' => ['Your account has been deactivated.'],
+                'credentials' => ['Your account has been deactivated.'],
             ]);
         }
 

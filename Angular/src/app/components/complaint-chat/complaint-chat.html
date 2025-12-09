@@ -1,0 +1,75 @@
+<div class="chat-container">
+  <h3 class="h5 mb-3">Messages</h3>
+
+  @if (errorMessage) {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="text-center py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading messages...</span>
+      </div>
+      <p class="mt-2 text-muted small">Loading messages...</p>
+    </div>
+  }
+
+  @if (!isLoading) {
+    <div class="chat-messages mb-3">
+      @if (messages.length === 0) {
+        <div class="text-center text-muted py-4">
+          <p class="mb-0">No messages yet. Start the conversation!</p>
+        </div>
+      }
+
+      @for (message of messages; track message.id) {
+        <div [class]="'message mb-3 ' + (isOwnMessage(message) ? 'message-own' : 'message-other')">
+          <div [class]="'message-bubble ' + (isOwnMessage(message) ? 'bg-primary text-white' : 'bg-light')">
+            @if (!isOwnMessage(message)) {
+              <div class="message-sender mb-1">
+                <strong class="text-primary">{{ getSenderName(message) }}</strong>
+                @if (getSenderRole(message)) {
+                  <small class="text-muted">{{ getSenderRole(message) }}</small>
+                }
+              </div>
+            }
+            <div class="message-text">{{ message.message }}</div>
+            <div [class]="'message-time mt-1 ' + (isOwnMessage(message) ? 'text-white-50' : 'text-muted')">
+              <small>{{ message.created_at | date:'short' }}</small>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="chat-input">
+      <form (ngSubmit)="sendMessage()" class="d-flex gap-2">
+        <input
+          type="text"
+          [(ngModel)]="newMessage"
+          name="message"
+          class="form-control"
+          placeholder="Type your message..."
+          [disabled]="isSending"
+          required
+        />
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isSending || !newMessage.trim()"
+        >
+          @if (!isSending) {
+            <span>Send</span>
+          }
+          @if (isSending) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+            <span>Sending...</span>
+          }
+        </button>
+      </form>
+    </div>
+  }
+</div>

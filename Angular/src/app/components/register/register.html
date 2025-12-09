@@ -1,116 +1,131 @@
-<div class="register-container">
-  <div class="register-card">
-    <div class="register-header">
-      <h1>Create Account</h1>
-      <p>Register to submit complaints</p>
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
+  <div class="card shadow" style="width: 100%; max-width: 500px;">
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <h1 class="h3 mb-2">Create Account</h1>
+        <p class="text-muted">Register to submit complaints</p>
+      </div>
+
+      <form (ngSubmit)="onRegister()">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username *</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            [(ngModel)]="formData.username"
+            placeholder="Choose a username"
+            [disabled]="isLoading"
+            required
+            class="form-control"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Email *</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="formData.email"
+            placeholder="your.email@example.com"
+            [disabled]="isLoading"
+            required
+            class="form-control"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="full_name" class="form-label">Full Name *</label>
+          <input
+            type="text"
+            id="full_name"
+            name="full_name"
+            [(ngModel)]="formData.full_name"
+            placeholder="Enter your full name"
+            [disabled]="isLoading"
+            required
+            class="form-control"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="contact_number" class="form-label">Contact Number</label>
+          <input
+            type="tel"
+            id="contact_number"
+            name="contact_number"
+            [(ngModel)]="formData.contact_number"
+            placeholder="Optional"
+            [disabled]="isLoading"
+            class="form-control"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="department" class="form-label">Department</label>
+          <input
+            type="text"
+            id="department"
+            name="department"
+            [(ngModel)]="formData.department"
+            placeholder="Optional"
+            [disabled]="isLoading"
+            class="form-control"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password *</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            [(ngModel)]="formData.password"
+            placeholder="At least 6 characters"
+            [disabled]="isLoading"
+            required
+            class="form-control"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="password_confirmation" class="form-label">Confirm Password *</label>
+          <input
+            type="password"
+            id="password_confirmation"
+            name="password_confirmation"
+            [(ngModel)]="formData.password_confirmation"
+            placeholder="Re-enter your password"
+            [disabled]="isLoading"
+            required
+            class="form-control"
+          />
+        </div>
+
+        @if (errorMessage) {
+          <div class="alert alert-danger" role="alert">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100 mb-3"
+          [disabled]="isLoading"
+        >
+          @if (!isLoading) {
+            <span>Create Account</span>
+          }
+          @if (isLoading) {
+            <span>Creating Account...</span>
+          }
+        </button>
+
+        <div class="text-center">
+          Already have an account? <a routerLink="/login" class="text-decoration-none">Login here</a>
+        </div>
+      </form>
     </div>
-
-    <form (ngSubmit)="onRegister()" class="register-form">
-      <div class="form-group">
-        <label for="username">Username *</label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          [(ngModel)]="formData.username"
-          placeholder="Choose a username"
-          [disabled]="isLoading"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="email">Email *</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          [(ngModel)]="formData.email"
-          placeholder="your.email@example.com"
-          [disabled]="isLoading"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="full_name">Full Name *</label>
-        <input
-          type="text"
-          id="full_name"
-          name="full_name"
-          [(ngModel)]="formData.full_name"
-          placeholder="Enter your full name"
-          [disabled]="isLoading"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="contact_number">Contact Number</label>
-        <input
-          type="tel"
-          id="contact_number"
-          name="contact_number"
-          [(ngModel)]="formData.contact_number"
-          placeholder="Optional"
-          [disabled]="isLoading"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="department">Department</label>
-        <input
-          type="text"
-          id="department"
-          name="department"
-          [(ngModel)]="formData.department"
-          placeholder="Optional"
-          [disabled]="isLoading"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password *</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          [(ngModel)]="formData.password"
-          placeholder="At least 6 characters"
-          [disabled]="isLoading"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="password_confirmation">Confirm Password *</label>
-        <input
-          type="password"
-          id="password_confirmation"
-          name="password_confirmation"
-          [(ngModel)]="formData.password_confirmation"
-          placeholder="Re-enter your password"
-          [disabled]="isLoading"
-          required
-        />
-      </div>
-
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
-
-      <button
-        type="submit"
-        class="register-button"
-        [disabled]="isLoading"
-      >
-        <span *ngIf="!isLoading">Create Account</span>
-        <span *ngIf="isLoading">Creating Account...</span>
-      </button>
-
-      <div class="login-link">
-        Already have an account? <a routerLink="/login">Login here</a>
-      </div>
-    </form>
   </div>
 </div>

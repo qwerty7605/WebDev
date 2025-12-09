@@ -1,44 +1,66 @@
-<div class="dashboard-container">
-  <div class="dashboard-header">
-    <h1>Welcome to Complaint Management Portal</h1>
-    <button class="logout-button" (click)="logout()">Logout</button>
+<div class="min-vh-100 bg-light">
+  <div class="bg-white shadow-sm py-3 mb-4">
+    <div class="container d-flex justify-content-between align-items-center">
+      <h1 class="h4 mb-0">Welcome to Complaint Management Portal</h1>
+      <button class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
+    </div>
   </div>
 
-  <div class="dashboard-content">
-    <div class="welcome-card">
-      <h2>Welcome, {{ currentUser?.full_name }}!</h2>
-      <p *ngIf="userType === 'user'">
-        <strong>Username:</strong> {{ getUserProp('username') }}<br>
-        <strong>Email:</strong> {{ currentUser?.email }}<br>
-        <strong>Department:</strong> {{ getUserProp('department') || 'N/A' }}
-      </p>
-      <p *ngIf="userType === 'admin'">
-        <strong>Username:</strong> {{ getUserProp('username') }}<br>
-        <strong>Email:</strong> {{ currentUser?.email }}<br>
-        <strong>Role:</strong> {{ getUserProp('role') }}
-      </p>
-    </div>
-
-    <div class="actions-grid" *ngIf="userType === 'user'">
-      <div class="action-card" routerLink="/complaint-form">
-        <div class="action-icon">📝</div>
-        <h3>Submit Complaint</h3>
-        <p>File a new complaint and track its progress</p>
-      </div>
-
-      <div class="action-card" routerLink="/complaints">
-        <div class="action-icon">📋</div>
-        <h3>My Complaints</h3>
-        <p>View and manage your submitted complaints</p>
+  <div class="container pb-5">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h2 class="h5 card-title">Welcome, {{ currentUser?.full_name }}!</h2>
+        @if (userType === 'user') {
+          <p class="mb-0">
+            <strong>Username:</strong> {{ getUserProp('username') }}<br>
+            <strong>Email:</strong> {{ currentUser?.email }}<br>
+            <strong>Department:</strong> {{ getUserProp('department') || 'N/A' }}
+          </p>
+        }
+        @if (userType === 'admin') {
+          <p class="mb-0">
+            <strong>Username:</strong> {{ getUserProp('username') }}<br>
+            <strong>Email:</strong> {{ currentUser?.email }}<br>
+            <strong>Role:</strong> {{ getUserProp('role') }}
+          </p>
+        }
       </div>
     </div>
 
-    <div class="info-card" *ngIf="userType === 'admin'">
-      <h3>Admin Dashboard</h3>
-      <p>
-        You are logged in as an <strong>Administrator</strong>.
-        Admin features for managing complaints will be available soon.
-      </p>
-    </div>
+    @if (userType === 'user') {
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm" style="cursor: pointer;" routerLink="/complaint-form">
+            <div class="card-body text-center p-4">
+              <div class="fs-1 mb-3">📝</div>
+              <h3 class="h5 card-title">Submit Complaint</h3>
+              <p class="text-muted mb-0">File a new complaint and track its progress</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm" style="cursor: pointer;" routerLink="/complaints">
+            <div class="card-body text-center p-4">
+              <div class="fs-1 mb-3">📋</div>
+              <h3 class="h5 card-title">My Complaints</h3>
+              <p class="text-muted mb-0">View and manage your submitted complaints</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (userType === 'admin') {
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="h5 card-title">Admin Dashboard</h3>
+          <p class="mb-0">
+            You are logged in as an <strong>Administrator</strong>.
+            Admin features for managing complaints will be available soon.
+          </p>
+        </div>
+      </div>
+    }
   </div>
 </div>

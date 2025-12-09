@@ -7,13 +7,11 @@ import { AuthService } from '../../services/auth';
 @Component({
   selector: 'app-login',
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './login.html',
-  styleUrl: './login.css'
+  templateUrl: './login.html'
 })
 export class LoginComponent {
   username = '';
   password = '';
-  loginType: 'user' | 'admin' = 'user';
   errorMessage = '';
   isLoading = false;
 
@@ -34,19 +32,20 @@ export class LoginComponent {
     // Detect if input is email or username
     const isEmail = this.isEmailFormat(this.username);
 
-    const loginMethod = this.loginType === 'admin'
-      ? this.authService.loginAdmin(this.username, this.password, isEmail)
-      : this.authService.loginUser(this.username, this.password, isEmail);
-
-    loginMethod.subscribe({
+    // Use unified login that automatically detects user type
+    this.authService.login(this.username, this.password, isEmail).subscribe({
       next: (response) => {
         this.isLoading = false;
-        console.log('Login successful:', response);
-        this.router.navigate(['/dashboard']);
+
+        // Route to appropriate dashboard based on user type
+        if (response.type === 'admin') {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (error) => {
         this.isLoading = false;
-        console.error('Login error:', error);
         this.errorMessage = error.error?.message || 'Login failed. Please check your credentials.';
       }
     });
@@ -56,10 +55,5 @@ export class LoginComponent {
     // Simple email validation regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(value);
-  }
-
-  switchLoginType(type: 'user' | 'admin'): void {
-    this.loginType = type;
-    this.errorMessage = '';
   }
 }

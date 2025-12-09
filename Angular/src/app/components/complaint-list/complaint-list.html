@@ -1,100 +1,130 @@
-<div class="list-container">
-  <div class="list-header">
-    <h1>My Complaints</h1>
-    <button class="create-button" (click)="createNew()">
-      + New Complaint
-    </button>
-  </div>
-
-  <div class="filter-tabs">
-    <button
-      [class.active]="filterStatus === 'all'"
-      (click)="filterByStatus('all')"
-    >
-      All ({{ complaints.length }})
-    </button>
-    <button
-      [class.active]="filterStatus === 'Pending'"
-      (click)="filterByStatus('Pending')"
-    >
-      Pending
-    </button>
-    <button
-      [class.active]="filterStatus === 'In Progress'"
-      (click)="filterByStatus('In Progress')"
-    >
-      In Progress
-    </button>
-    <button
-      [class.active]="filterStatus === 'Resolved'"
-      (click)="filterByStatus('Resolved')"
-    >
-      Resolved
-    </button>
-  </div>
-
-  <div *ngIf="isLoading" class="loading">
-    <p>Loading complaints...</p>
-  </div>
-
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </div>
-
-  <div *ngIf="!isLoading && filteredComplaints.length === 0" class="empty-state">
-    <p *ngIf="filterStatus === 'all'">
-      You haven't submitted any complaints yet.
-    </p>
-    <p *ngIf="filterStatus !== 'all'">
-      No {{ filterStatus.toLowerCase() }} complaints found.
-    </p>
-    <button class="create-button" (click)="createNew()">
-      Submit Your First Complaint
-    </button>
-  </div>
-
-  <div class="complaint-grid" *ngIf="!isLoading && filteredComplaints.length > 0">
-    <div
-      *ngFor="let complaint of filteredComplaints"
-      class="complaint-card"
-      (click)="viewDetails(complaint.id)"
-    >
-      <div class="card-header">
-        <span class="complaint-number">{{ complaint.complaint_number }}</span>
-        <span [class]="getStatusClass(complaint.status)" class="status-badge">
-          {{ complaint.status }}
-        </span>
+<div class="min-vh-100 bg-light py-4">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <button class="btn btn-outline-secondary btn-sm mb-2" (click)="goToDashboard()">
+          ← Dashboard
+        </button>
+        <h1 class="h3 mb-0">My Complaints</h1>
       </div>
-
-      <h3 class="complaint-subject">{{ complaint.subject }}</h3>
-
-      <div class="complaint-meta">
-        <div class="meta-item">
-          <span class="meta-label">Category:</span>
-          <span>{{ complaint.category?.category_name }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Priority:</span>
-          <span [class]="getPriorityClass(complaint.priority)">
-            {{ complaint.priority }}
-          </span>
-        </div>
-        <div class="meta-item" *ngIf="complaint.location">
-          <span class="meta-label">Location:</span>
-          <span>{{ complaint.location }}</span>
-        </div>
-      </div>
-
-      <div class="complaint-description">
-        {{ complaint.description.length > 150 ? complaint.description.substring(0, 150) + '...' : complaint.description }}
-      </div>
-
-      <div class="card-footer">
-        <span class="created-date">
-          Submitted: {{ complaint.created_at | date:'medium' }}
-        </span>
-        <span class="view-link">View Details →</span>
-      </div>
+      <button class="btn btn-primary" (click)="createNew()">
+        + New Complaint
+      </button>
     </div>
+
+    <div class="btn-group mb-4" role="group">
+      <button
+        [class.active]="filterStatus === 'all'"
+        (click)="filterByStatus('all')"
+        class="btn btn-outline-secondary"
+      >
+        All ({{ complaints.length }})
+      </button>
+      <button
+        [class.active]="filterStatus === 'Pending'"
+        (click)="filterByStatus('Pending')"
+        class="btn btn-outline-secondary"
+      >
+        Pending
+      </button>
+      <button
+        [class.active]="filterStatus === 'In Progress'"
+        (click)="filterByStatus('In Progress')"
+        class="btn btn-outline-secondary"
+      >
+        In Progress
+      </button>
+      <button
+        [class.active]="filterStatus === 'Resolved'"
+        (click)="filterByStatus('Resolved')"
+        class="btn btn-outline-secondary"
+      >
+        Resolved
+      </button>
+    </div>
+
+    @if (isLoading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3 text-muted">Loading complaints...</p>
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>
+    }
+
+    @if (!isLoading && filteredComplaints.length === 0) {
+      <div class="text-center py-5">
+        @if (filterStatus === 'all') {
+          <p class="text-muted mb-3">You haven't submitted any complaints yet.</p>
+        }
+        @if (filterStatus !== 'all') {
+          <p class="text-muted mb-3">No {{ filterStatus.toLowerCase() }} complaints found.</p>
+        }
+        <button class="btn btn-primary" (click)="createNew()">
+          Submit Your First Complaint
+        </button>
+      </div>
+    }
+
+    @if (!isLoading && filteredComplaints.length > 0) {
+      <div class="row g-4">
+        @for (complaint of filteredComplaints; track complaint.id) {
+          <div class="col-12">
+            <div class="card shadow-sm h-100" style="cursor: pointer;" (click)="viewDetails(complaint.id)">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <span class="badge bg-secondary">{{ complaint.complaint_number }}</span>
+                  <span [class]="'badge ' + getStatusClass(complaint.status)">
+                    {{ complaint.status }}
+                  </span>
+                </div>
+
+                <h3 class="h5 card-title">{{ complaint.subject }}</h3>
+
+                <div class="row g-2 mb-3">
+                  <div class="col-md-4">
+                    <small class="text-muted">Category:</small>
+                    <div>{{ complaint.category?.category_name }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <small class="text-muted">Priority:</small>
+                    <div [class]="getPriorityClass(complaint.priority)">
+                      {{ complaint.priority }}
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    @if (complaint.assignedAdmin) {
+                      <small class="text-muted">Assigned to:</small>
+                      <div>{{ complaint.assignedAdmin.full_name }}</div>
+                    }
+                    @if (complaint.is_anonymous) {
+                      <small class="text-muted">Type:</small>
+                      <div><span class="badge bg-secondary">Anonymous</span></div>
+                    }
+                  </div>
+                </div>
+
+                <p class="text-muted mb-3">
+                  {{ complaint.description.length > 150 ? complaint.description.substring(0, 150) + '...' : complaint.description }}
+                </p>
+
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">
+                    Submitted: {{ complaint.created_at | date:'medium' }}
+                  </small>
+                  <span class="text-primary">View Details →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
   </div>
 </div>

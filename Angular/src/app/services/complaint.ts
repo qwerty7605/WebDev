@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Category {
   id: number;
@@ -12,20 +13,30 @@ export interface Category {
 export interface Complaint {
   id: number;
   user_id: number;
+  is_anonymous: boolean;
   category_id: number;
+  assigned_to?: number;
   complaint_number: string;
   subject: string;
   description: string;
   priority: 'Low' | 'Medium' | 'High';
   status: 'Pending' | 'In Progress' | 'Resolved';
-  location?: string;
   attachment_path?: string;
   resolved_at?: string;
   created_at: string;
   updated_at: string;
   category?: Category;
   user?: any;
+  assignedAdmin?: Admin;
   updates?: ComplaintUpdate[];
+}
+
+export interface Admin {
+  id: number;
+  username: string;
+  email: string;
+  full_name: string;
+  role: string;
 }
 
 export interface ComplaintUpdate {
@@ -45,14 +56,15 @@ export interface ComplaintFormData {
   subject: string;
   description: string;
   priority: 'Low' | 'Medium' | 'High';
-  location?: string;
+  assigned_to?: number;
+  is_anonymous?: boolean;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ComplaintService {
-  private apiUrl = 'http://localhost:80/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -61,6 +73,13 @@ export class ComplaintService {
    */
   getCategories(): Observable<{ categories: Category[] }> {
     return this.http.get<{ categories: Category[] }>(`${this.apiUrl}/categories`);
+  }
+
+  /**
+   * Get all available admins (for complaint assignment)
+   */
+  getAvailableAdmins(): Observable<{ admins: Admin[] }> {
+    return this.http.get<{ admins: Admin[] }>(`${this.apiUrl}/admins/available`);
   }
 
   /**

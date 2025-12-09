@@ -221,4 +221,19 @@ class AuthController extends Controller
             'admin' => $request->user()
         ], 200);
     }
+
+    /**
+     * Get all available admins (for complaint assignment)
+     */
+    public function getAvailableAdmins()
+    {
+        $admins = Admin::where('is_active', true)
+            ->select('id', 'username', 'full_name', 'email', 'role')
+            ->orderBy('full_name')
+            ->get();
+
+        return response()->json([
+            'admins' => $admins
+        ], 200);
+    }
 }

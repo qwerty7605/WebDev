@@ -32,7 +32,8 @@ class ComplaintController extends Controller
             'subject' => 'required|string|max:255',
             'description' => 'required|string',
             'priority' => 'required|in:Low,Medium,High',
-            'location' => 'nullable|string|max:255',
+            'assigned_to' => 'nullable|exists:admins,id',
+            'is_anonymous' => 'nullable|boolean',
         ]);
 
         $user = $request->user();
@@ -42,16 +43,17 @@ class ComplaintController extends Controller
 
         $complaint = Complaint::create([
             'user_id' => $user->id,
+            'is_anonymous' => $request->is_anonymous ?? false,
             'category_id' => $request->category_id,
             'complaint_number' => $complaintNumber,
             'subject' => $request->subject,
             'description' => $request->description,
             'priority' => $request->priority,
             'status' => 'Pending',
-            'location' => $request->location,
+            'assigned_to' => $request->assigned_to,
         ]);
 
-        $complaint->load(['category', 'user']);
+        $complaint->load(['category', 'user', 'assignedAdmin']);
 
         return response()->json([
             'message' => 'Complaint submitted successfully',
@@ -67,7 +69,7 @@ class ComplaintController extends Controller
         $user = $request->user();
 
         $complaints = Complaint::where('user_id', $user->id)
-            ->with(['category', 'updates.admin'])
+            ->with(['category', 'assignedAdmin', 'updates.admin'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -83,7 +85,7 @@ class ComplaintController extends Controller
     {
         $user = $request->user();
 
-        $complaint = Complaint::with(['category', 'user', 'updates.admin'])
+        $complaint = Complaint::with(['category', 'user', 'assignedAdmin', 'updates.admin'])
             ->where('id', $id)
             ->where('user_id', $user->id)
             ->firstOrFail();
@@ -101,7 +103,7 @@ class ComplaintController extends Controller
         $status = $request->query('status');
         $category = $request->query('category');
 
-        $query = Complaint::with(['category', 'user', 'updates']);
+        $query = Complaint::with(['category', 'user', 'assignedAdmin', 'updates']);
 
         if ($status) {
             $query->where('status', $status);

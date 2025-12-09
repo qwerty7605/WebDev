@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ComplaintService, Complaint } from '../../services/complaint';
+import { ComplaintChat } from '../complaint-chat/complaint-chat';
 
 @Component({
   selector: 'app-complaint-detail',
-  imports: [CommonModule],
-  templateUrl: './complaint-detail.html',
-  styleUrl: './complaint-detail.css'
+  imports: [CommonModule, ComplaintChat],
+  templateUrl: './complaint-detail.html'
 })
 export class ComplaintDetailComponent implements OnInit {
   complaint: Complaint | null = null;
@@ -48,11 +48,11 @@ export class ComplaintDetailComponent implements OnInit {
   getStatusClass(status: string): string {
     switch (status) {
       case 'Pending':
-        return 'status-pending';
+        return 'bg-warning';
       case 'In Progress':
-        return 'status-progress';
+        return 'bg-info';
       case 'Resolved':
-        return 'status-resolved';
+        return 'bg-success';
       default:
         return '';
     }

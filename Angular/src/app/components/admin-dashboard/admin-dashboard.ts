@@ -16,8 +16,7 @@ interface Statistics {
 @Component({
   selector: 'app-admin-dashboard',
   imports: [CommonModule, RouterModule],
-  templateUrl: './admin-dashboard.html',
-  styleUrl: './admin-dashboard.css'
+  templateUrl: './admin-dashboard.html'
 })
 export class AdminDashboardComponent implements OnInit {
   statistics: Statistics | null = null;

@@ -11,13 +11,14 @@ class Complaint extends Model
 
     protected $fillable = [
         'user_id',
+        'is_anonymous',
         'category_id',
+        'assigned_to',
         'complaint_number',
         'subject',
         'description',
         'priority',
         'status',
-        'location',
         'attachment_path',
         'resolved_at',
     ];
@@ -25,6 +26,7 @@ class Complaint extends Model
     protected function casts(): array
     {
         return [
+            'is_anonymous' => 'boolean',
             'resolved_at' => 'datetime',
         ];
     }
@@ -46,10 +48,26 @@ class Complaint extends Model
     }
 
     /**
+     * Get the admin assigned to the complaint.
+     */
+    public function assignedAdmin()
+    {
+        return $this->belongsTo(Admin::class, 'assigned_to');
+    }
+
+    /**
      * Get the updates for the complaint.
      */
     public function updates()
     {
         return $this->hasMany(ComplaintUpdate::class);
+    }
+
+    /**
+     * Get the messages for the complaint.
+     */
+    public function messages()
+    {
+        return $this->hasMany(ComplaintMessage::class);
     }
 }

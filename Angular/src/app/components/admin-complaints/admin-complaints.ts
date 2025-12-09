@@ -6,8 +6,7 @@ import { ComplaintService, Complaint } from '../../services/complaint';
 @Component({
   selector: 'app-admin-complaints',
   imports: [CommonModule, RouterModule],
-  templateUrl: './admin-complaints.html',
-  styleUrl: './admin-complaints.css'
+  templateUrl: './admin-complaints.html'
 })
 export class AdminComplaintsComponent implements OnInit {
   complaints: Complaint[] = [];
@@ -73,11 +72,11 @@ export class AdminComplaintsComponent implements OnInit {
   getStatusClass(status: string): string {
     switch (status) {
       case 'Pending':
-        return 'status-pending';
+        return 'bg-warning';
       case 'In Progress':
-        return 'status-progress';
+        return 'bg-info';
       case 'Resolved':
-        return 'status-resolved';
+        return 'bg-success';
       default:
         return '';
     }
@@ -86,11 +85,11 @@ export class AdminComplaintsComponent implements OnInit {
   getPriorityClass(priority: string): string {
     switch (priority) {
       case 'High':
-        return 'priority-high';
+        return 'text-danger fw-bold';
       case 'Medium':
-        return 'priority-medium';
+        return 'text-warning fw-bold';
       case 'Low':
-        return 'priority-low';
+        return 'text-success fw-bold';
       default:
         return '';
     }

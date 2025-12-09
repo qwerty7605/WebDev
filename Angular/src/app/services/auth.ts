@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface User {
   id: number;
@@ -32,7 +33,7 @@ export interface AuthResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:80/api';
+  private apiUrl = environment.apiUrl;
   private currentUserSubject = new BehaviorSubject<User | Admin | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -49,9 +50,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, userData)
       .pipe(
         tap(response => {
-          this.setToken(response.token);
-          this.setUserType(response.type);
-          this.currentUserSubject.next(response.user || response.admin || null);
+          this.handleAuthResponse(response);
         })
       );
   }
@@ -68,9 +67,7 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, payload).pipe(
       tap(response => {
-        this.setToken(response.token);
-        this.setUserType(response.type);
-        this.currentUserSubject.next(response.user || null);
+        this.handleAuthResponse(response);
       })
     );
   }
@@ -87,9 +84,61 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/admin/login`, payload).pipe(
       tap(response => {
-        this.setToken(response.token);
-        this.setUserType(response.type);
-        this.currentUserSubject.next(response.admin || null);
+        this.handleAuthResponse(response);
+      })
+    );
+  }
+
+  // Unified Login - automatically detects if credentials are for user or admin
+  login(identifier: string, password: string, isEmail: boolean = false): Observable<AuthResponse> {
+    const payload: any = { password };
+
+    if (isEmail) {
+      payload.email = identifier;
+    } else {
+      payload.username = identifier;
+    }
+
+    // Try user login first
+    return new Observable<AuthResponse>(observer => {
+      this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, payload).subscribe({
+        next: (response) => {
+          this.handleAuthResponse(response);
+          observer.next(response);
+          observer.complete();
+        },
+        error: () => {
+          // If user login fails, try admin login
+          this.http.post<AuthResponse>(`${this.apiUrl}/auth/admin/login`, payload).subscribe({
+            next: (response) => {
+              this.handleAuthResponse(response);
+              observer.next(response);
+              observer.complete();
+            },
+            error: (error) => {
+              observer.error(error);
+            }
+          });
+        }
+      });
+    });
+  }
+
+  // Helper method to handle auth response
+  private handleAuthResponse(response: AuthResponse): void {
+    this.setToken(response.token);
+    this.setUserType(response.type);
+    this.currentUserSubject.next(response.user || response.admin || null);
+  }
+
+  // Refresh JWT token
+  refreshToken(): Observable<AuthResponse> {
+    const userType = this.getUserType();
+    const endpoint = userType === 'admin' ? '/auth/admin/refresh' : '/auth/refresh';
+
+    return this.http.post<AuthResponse>(`${this.apiUrl}${endpoint}`, {}).pipe(
+      tap(response => {
+        this.handleAuthResponse(response);
       })
     );
   }
@@ -150,13 +199,29 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  // Get HTTP headers with authorization
-  getAuthHeaders(): HttpHeaders {
-    const token = this.getToken();
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
+  // Forgot Password - Auto-detect user or admin
+  forgotPassword(email: string): Observable<{message: string}> {
+    return this.http.post<{message: string}>(`${this.apiUrl}/password/forgot`, { email });
+  }
+
+  // Forgot Password - Send reset link to user
+  forgotPasswordUser(email: string): Observable<{message: string}> {
+    return this.http.post<{message: string}>(`${this.apiUrl}/password/forgot/user`, { email });
+  }
+
+  // Forgot Password - Send reset link to admin
+  forgotPasswordAdmin(email: string): Observable<{message: string}> {
+    return this.http.post<{message: string}>(`${this.apiUrl}/password/forgot/admin`, { email });
+  }
+
+  // Reset Password
+  resetPassword(email: string, token: string, password: string, password_confirmation: string, type: 'user' | 'admin'): Observable<{message: string}> {
+    return this.http.post<{message: string}>(`${this.apiUrl}/password/reset`, {
+      email,
+      token,
+      password,
+      password_confirmation,
+      type
     });
   }
 }

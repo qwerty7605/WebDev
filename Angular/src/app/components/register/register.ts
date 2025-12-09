@@ -7,8 +7,7 @@ import { AuthService } from '../../services/auth';
 @Component({
   selector: 'app-register',
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './register.html',
-  styleUrl: './register.css',
+  templateUrl: './register.html'
 })
 export class RegisterComponent {
   formData = {
@@ -51,12 +50,10 @@ export class RegisterComponent {
     this.authService.register(this.formData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        console.log('Registration successful:', response);
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         this.isLoading = false;
-        console.error('Registration error:', error);
 
         // Handle validation errors
         if (error.error?.errors) {

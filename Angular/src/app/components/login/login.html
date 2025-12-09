@@ -1,72 +1,66 @@
-<div class="login-container">
-  <div class="login-card">
-    <div class="login-header">
-      <h1>Complaint Management Portal</h1>
-      <p>Sign in to continue</p>
-    </div>
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card shadow" style="width: 100%; max-width: 450px;">
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <h1 class="h3 mb-2">Complaint Management Portal</h1>
+        <p class="text-muted">Sign in to continue</p>
+      </div>
 
-    <div class="login-type-selector">
-      <button
-        [class.active]="loginType === 'user'"
-        (click)="switchLoginType('user')"
-        type="button"
-      >
-        User Login
-      </button>
-      <button
-        [class.active]="loginType === 'admin'"
-        (click)="switchLoginType('admin')"
-        type="button"
-      >
-        Admin Login
-      </button>
-    </div>
+      <form (ngSubmit)="onLogin()">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username or Email</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            [(ngModel)]="username"
+            placeholder="Enter your username or email"
+            [disabled]="isLoading"
+            required
+            class="form-control"
+          />
+        </div>
 
-    <form (ngSubmit)="onLogin()" class="login-form">
-      <div class="form-group">
-        <label for="username">Username or Email</label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          [(ngModel)]="username"
-          placeholder="Enter your username or email"
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="Enter your password"
+            [disabled]="isLoading"
+            required
+            class="form-control"
+          />
+          <div class="mt-2">
+            <a routerLink="/forgot-password" class="text-decoration-none small">Forgot Password?</a>
+          </div>
+        </div>
+
+        @if (errorMessage) {
+          <div class="alert alert-danger" role="alert">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100 mb-3"
           [disabled]="isLoading"
-          required
-        />
-      </div>
+        >
+          @if (!isLoading) {
+            <span>Login</span>
+          }
+          @if (isLoading) {
+            <span>Logging in...</span>
+          }
+        </button>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          [(ngModel)]="password"
-          placeholder="Enter your password"
-          [disabled]="isLoading"
-          required
-        />
-      </div>
-
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
-
-      <button
-        type="submit"
-        class="login-button"
-        [disabled]="isLoading"
-      >
-        <span *ngIf="!isLoading">
-          {{ loginType === 'admin' ? 'Login as Admin' : 'Login' }}
-        </span>
-        <span *ngIf="isLoading">Logging in...</span>
-      </button>
-
-      <div *ngIf="loginType === 'user'" class="register-link">
-        Don't have an account? <a routerLink="/register">Register here</a>
-      </div>
-    </form>
+        <div class="text-center">
+          Don't have an account? <a routerLink="/register" class="text-decoration-none">Register here</a>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

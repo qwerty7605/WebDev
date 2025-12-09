@@ -1,99 +1,144 @@
-<div class="admin-container">
-  <div class="admin-header">
-    <div>
-      <h1>Admin Dashboard</h1>
-      <p>Welcome, {{ adminName }}</p>
+<div class="min-vh-100 bg-light">
+  <div class="bg-white shadow-sm py-3 mb-4">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="h4 mb-0">Admin Dashboard</h1>
+        <p class="text-muted mb-0">Welcome, {{ adminName }}</p>
+      </div>
+      <button class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
     </div>
-    <button class="logout-button" (click)="logout()">Logout</button>
   </div>
 
-  <div *ngIf="isLoading" class="loading">
-    <p>Loading statistics...</p>
-  </div>
-
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </div>
-
-  <div *ngIf="!isLoading && statistics" class="dashboard-content">
-    <div class="stats-grid">
-      <div class="stat-card total">
-        <div class="stat-icon">📊</div>
-        <div class="stat-info">
-          <h3>{{ statistics.total }}</h3>
-          <p>Total Complaints</p>
-        </div>
+  @if (isLoading) {
+    <div class="container text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
+      <p class="mt-3 text-muted">Loading statistics...</p>
+    </div>
+  }
 
-      <div class="stat-card pending">
-        <div class="stat-icon">🕐</div>
-        <div class="stat-info">
-          <h3>{{ statistics.pending }}</h3>
-          <p>Pending</p>
-        </div>
-      </div>
-
-      <div class="stat-card progress">
-        <div class="stat-icon">⚙️</div>
-        <div class="stat-info">
-          <h3>{{ statistics.in_progress }}</h3>
-          <p>In Progress</p>
-        </div>
-      </div>
-
-      <div class="stat-card resolved">
-        <div class="stat-icon">✅</div>
-        <div class="stat-info">
-          <h3>{{ statistics.resolved }}</h3>
-          <p>Resolved</p>
-        </div>
+  @if (errorMessage) {
+    <div class="container">
+      <div class="alert alert-danger" role="alert">
+        {{ errorMessage }}
       </div>
     </div>
+  }
 
-    <div class="actions-section">
-      <div class="action-card" (click)="viewAllComplaints()">
-        <div class="action-icon">📋</div>
-        <h3>All Complaints</h3>
-        <p>View and manage all complaints</p>
-      </div>
-
-      <div class="action-card" (click)="viewPendingComplaints()">
-        <div class="action-icon">⚠️</div>
-        <h3>Pending Complaints</h3>
-        <p>Review complaints awaiting action</p>
-      </div>
-    </div>
-
-    <div class="charts-section">
-      <div class="chart-card">
-        <h3>Complaints by Category</h3>
-        <div class="chart-list">
-          <div *ngFor="let cat of statistics.by_category" class="chart-item">
-            <span class="chart-label">{{ cat.category?.category_name || 'Unknown' }}</span>
-            <div class="chart-bar">
-              <div class="chart-fill" [style.width.%]="(cat.count / statistics.total) * 100"></div>
+  @if (!isLoading && statistics) {
+    <div class="container pb-5">
+      <div class="row g-4 mb-4">
+        <div class="col-md-3">
+          <div class="card shadow-sm border-primary">
+            <div class="card-body text-center">
+              <div class="fs-1 mb-2">📊</div>
+              <h3 class="h2 mb-0">{{ statistics.total }}</h3>
+              <p class="text-muted mb-0">Total Complaints</p>
             </div>
-            <span class="chart-value">{{ cat.count }}</span>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm border-warning">
+            <div class="card-body text-center">
+              <div class="fs-1 mb-2">🕐</div>
+              <h3 class="h2 mb-0">{{ statistics.pending }}</h3>
+              <p class="text-muted mb-0">Pending</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm border-info">
+            <div class="card-body text-center">
+              <div class="fs-1 mb-2">⚙️</div>
+              <h3 class="h2 mb-0">{{ statistics.in_progress }}</h3>
+              <p class="text-muted mb-0">In Progress</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm border-success">
+            <div class="card-body text-center">
+              <div class="fs-1 mb-2">✅</div>
+              <h3 class="h2 mb-0">{{ statistics.resolved }}</h3>
+              <p class="text-muted mb-0">Resolved</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="chart-card">
-        <h3>Complaints by Priority</h3>
-        <div class="chart-list">
-          <div *ngFor="let priority of statistics.by_priority" class="chart-item">
-            <span class="chart-label">{{ priority.priority }}</span>
-            <div class="chart-bar">
-              <div class="chart-fill"
-                   [style.width.%]="(priority.count / statistics.total) * 100"
-                   [class.high]="priority.priority === 'High'"
-                   [class.medium]="priority.priority === 'Medium'"
-                   [class.low]="priority.priority === 'Low'"></div>
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm" style="cursor: pointer;" (click)="viewAllComplaints()">
+            <div class="card-body text-center p-4">
+              <div class="fs-1 mb-3">📋</div>
+              <h3 class="h5 card-title">All Complaints</h3>
+              <p class="text-muted mb-0">View and manage all complaints</p>
             </div>
-            <span class="chart-value">{{ priority.count }}</span>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm" style="cursor: pointer;" (click)="viewPendingComplaints()">
+            <div class="card-body text-center p-4">
+              <div class="fs-1 mb-3">⚠️</div>
+              <h3 class="h5 card-title">Pending Complaints</h3>
+              <p class="text-muted mb-0">Review complaints awaiting action</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h3 class="h5 card-title mb-4">Complaints by Category</h3>
+              <div class="list-group list-group-flush">
+                @for (cat of statistics.by_category; track $index) {
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div class="flex-grow-1">
+                      <div class="mb-2">{{ cat.category?.category_name || 'Unknown' }}</div>
+                      <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" [style.width.%]="(cat.count / statistics.total) * 100"></div>
+                      </div>
+                    </div>
+                    <span class="badge bg-secondary ms-3">{{ cat.count }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h3 class="h5 card-title mb-4">Complaints by Priority</h3>
+              <div class="list-group list-group-flush">
+                @for (priority of statistics.by_priority; track $index) {
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div class="flex-grow-1">
+                      <div class="mb-2">{{ priority.priority }}</div>
+                      <div class="progress" style="height: 8px;">
+                        <div class="progress-bar"
+                             [style.width.%]="(priority.count / statistics.total) * 100"
+                             [class.bg-danger]="priority.priority === 'High'"
+                             [class.bg-warning]="priority.priority === 'Medium'"
+                             [class.bg-success]="priority.priority === 'Low'"></div>
+                      </div>
+                    </div>
+                    <span class="badge bg-secondary ms-3">{{ priority.count }}</span>
+                  </div>
+                }
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  }
 </div>

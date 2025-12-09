@@ -6,8 +6,7 @@ import { ComplaintService, Complaint } from '../../services/complaint';
 @Component({
   selector: 'app-complaint-list',
   imports: [CommonModule, RouterModule],
-  templateUrl: './complaint-list.html',
-  styleUrl: './complaint-list.css'
+  templateUrl: './complaint-list.html'
 })
 export class ComplaintListComponent implements OnInit {
   complaints: Complaint[] = [];
@@ -53,6 +52,10 @@ export class ComplaintListComponent implements OnInit {
     }
   }
 
+  goToDashboard(): void {
+    this.router.navigate(['/dashboard']);
+  }
+
   viewDetails(id: number): void {
     this.router.navigate(['/complaints', id]);
   }
@@ -64,11 +67,11 @@ export class ComplaintListComponent implements OnInit {
   getStatusClass(status: string): string {
     switch (status) {
       case 'Pending':
-        return 'status-pending';
+        return 'bg-warning';
       case 'In Progress':
-        return 'status-progress';
+        return 'bg-info';
       case 'Resolved':
-        return 'status-resolved';
+        return 'bg-success';
       default:
         return '';
     }
@@ -77,11 +80,11 @@ export class ComplaintListComponent implements OnInit {
   getPriorityClass(priority: string): string {
     switch (priority) {
       case 'High':
-        return 'priority-high';
+        return 'text-danger fw-bold';
       case 'Medium':
-        return 'priority-medium';
+        return 'text-warning fw-bold';
       case 'Low':
-        return 'priority-low';
+        return 'text-success fw-bold';
       default:
         return '';
     }

@@ -6,8 +6,7 @@ import { AuthService, User, Admin } from '../../services/auth';
 @Component({
   selector: 'app-dashboard',
   imports: [CommonModule, RouterModule],
-  templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css'
+  templateUrl: './dashboard.html'
 })
 export class DashboardComponent implements OnInit {
   currentUser: User | Admin | null = null;

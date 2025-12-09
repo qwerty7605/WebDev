@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ComplaintService, Complaint } from '../../services/complaint';
+import { ComplaintChat } from '../complaint-chat/complaint-chat';
 
 @Component({
   selector: 'app-admin-complaint-detail',
-  imports: [CommonModule, FormsModule],
-  templateUrl: './admin-complaint-detail.html',
-  styleUrl: './admin-complaint-detail.css'
+  imports: [CommonModule, FormsModule, ComplaintChat],
+  templateUrl: './admin-complaint-detail.html'
 })
 export class AdminComplaintDetailComponent implements OnInit {
   complaint: Complaint | null = null;
@@ -90,11 +90,11 @@ export class AdminComplaintDetailComponent implements OnInit {
   getStatusClass(status: string): string {
     switch (status) {
       case 'Pending':
-        return 'status-pending';
+        return 'bg-warning';
       case 'In Progress':
-        return 'status-progress';
+        return 'bg-info';
       case 'Resolved':
-        return 'status-resolved';
+        return 'bg-success';
       default:
         return '';
     }

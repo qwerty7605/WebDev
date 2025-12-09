@@ -1,71 +1,111 @@
-<div class="detail-container" *ngIf="!isLoading && complaint">
-  <button class="back-button" (click)="goBack()">← Back to Complaints</button>
+<div class="min-vh-100 bg-light py-4">
+  @if (!isLoading && complaint) {
+    <div class="container">
+      <button class="btn btn-outline-secondary mb-4" (click)="goBack()">
+        ← Back to Complaints
+      </button>
 
-  <div class="detail-card">
-    <div class="detail-header">
-      <div>
-        <span class="complaint-number">{{ complaint.complaint_number }}</span>
-        <h1>{{ complaint.subject }}</h1>
-      </div>
-      <span [class]="getStatusClass(complaint.status)" class="status-badge-large">
-        {{ complaint.status }}
-      </span>
-    </div>
+      <div class="card shadow">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+              <span class="badge bg-secondary mb-2">{{ complaint.complaint_number }}</span>
+              <h1 class="h3">{{ complaint.subject }}</h1>
+            </div>
+            <span [class]="'badge fs-6 ' + getStatusClass(complaint.status)">
+              {{ complaint.status }}
+            </span>
+          </div>
 
-    <div class="detail-meta">
-      <div class="meta-row">
-        <div class="meta-item">
-          <span class="label">Category:</span>
-          <span>{{ complaint.category?.category_name }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="label">Priority:</span>
-          <span [class.high]="complaint.priority === 'High'"
-                [class.medium]="complaint.priority === 'Medium'"
-                [class.low]="complaint.priority === 'Low'">
-            {{ complaint.priority }}
-          </span>
-        </div>
-      </div>
-      <div class="meta-row">
-        <div class="meta-item" *ngIf="complaint.location">
-          <span class="label">Location:</span>
-          <span>{{ complaint.location }}</span>
-        </div>
-        <div class="meta-item">
-          <span class="label">Submitted:</span>
-          <span>{{ complaint.created_at | date:'medium' }}</span>
-        </div>
-      </div>
-    </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <small class="text-muted d-block">Category:</small>
+              <strong>{{ complaint.category?.category_name }}</strong>
+            </div>
+            <div class="col-md-6">
+              <small class="text-muted d-block">Priority:</small>
+              <strong [class.text-danger]="complaint.priority === 'High'"
+                      [class.text-warning]="complaint.priority === 'Medium'"
+                      [class.text-success]="complaint.priority === 'Low'">
+                {{ complaint.priority }}
+              </strong>
+            </div>
+            <div class="col-md-6">
+              <small class="text-muted d-block">Submitted:</small>
+              <strong>{{ complaint.created_at | date:'medium' }}</strong>
+            </div>
+            @if (complaint.assignedAdmin) {
+              <div class="col-md-6">
+                <small class="text-muted d-block">Assigned To:</small>
+                <strong>{{ complaint.assignedAdmin.full_name }} ({{ complaint.assignedAdmin.role }})</strong>
+              </div>
+            }
+            @if (complaint.is_anonymous) {
+              <div class="col-md-6">
+                <small class="text-muted d-block">Submission Type:</small>
+                <span class="badge bg-secondary">Anonymous</span>
+              </div>
+            }
+          </div>
 
-    <div class="detail-section">
-      <h3>Description</h3>
-      <p class="description">{{ complaint.description }}</p>
-    </div>
+          <div class="mb-4">
+            <h3 class="h5 mb-2">Description</h3>
+            <p class="mb-0">{{ complaint.description }}</p>
+          </div>
 
-    <div class="detail-section" *ngIf="complaint.updates && complaint.updates.length > 0">
-      <h3>Updates & Comments</h3>
-      <div class="updates-list">
-        <div *ngFor="let update of complaint.updates" class="update-item">
-          <div class="update-header">
-            <span class="update-admin">{{ update.admin?.full_name }}</span>
-            <span class="update-date">{{ update.created_at | date:'short' }}</span>
-          </div>
-          <div class="update-status-change">
-            Status changed: <strong>{{ update.previous_status }}</strong> → <strong>{{ update.new_status }}</strong>
-          </div>
-          <div *ngIf="update.comments" class="update-comments">
-            <strong>Comments:</strong> {{ update.comments }}
-          </div>
-          <div *ngIf="update.resolution_details" class="update-resolution">
-            <strong>Resolution:</strong> {{ update.resolution_details }}
-          </div>
+          @if (complaint.updates && complaint.updates.length > 0) {
+            <div>
+              <h3 class="h5 mb-3">Updates & Comments</h3>
+              <div class="list-group">
+                @for (update of complaint.updates; track $index) {
+                  <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <strong class="text-primary">{{ update.admin?.full_name }}</strong>
+                      <small class="text-muted">{{ update.created_at | date:'short' }}</small>
+                    </div>
+                    <div class="mb-2">
+                      Status changed: <strong>{{ update.previous_status }}</strong> → <strong>{{ update.new_status }}</strong>
+                    </div>
+                    @if (update.comments) {
+                      <div class="mb-2">
+                        <strong>Comments:</strong> {{ update.comments }}
+                      </div>
+                    }
+                    @if (update.resolution_details) {
+                      <div class="alert alert-success mb-0 mt-2">
+                        <strong>Resolution:</strong> {{ update.resolution_details }}
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (complaint.assigned_to) {
+            <div class="mt-4">
+              <app-complaint-chat [complaintId]="complaint.id"></app-complaint-chat>
+            </div>
+          }
         </div>
       </div>
     </div>
-  </div>
+  }
+
+  @if (isLoading) {
+    <div class="container text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading complaint details...</p>
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="container">
+      <div class="alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>
+    </div>
+  }
 </div>
-
-<div *ngIf="isLoading" class="loading">Loading complaint details...</div>
-<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>

@@ -1,5 +1,6 @@
 services:
   php:
+    image: shzzzki0000/laravel-dockerfile:laravel-php
     build:
       context: .
       args:

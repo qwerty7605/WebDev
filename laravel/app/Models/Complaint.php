@@ -19,7 +19,6 @@ class Complaint extends Model
         'description',
         'priority',
         'status',
-        'attachment_path',
         'resolved_at',
     ];
 
@@ -69,5 +68,21 @@ class Complaint extends Model
     public function messages()
     {
         return $this->hasMany(ComplaintMessage::class);
+    }
+
+    /**
+     * Get the attachments for the complaint.
+     */
+    public function attachments()
+    {
+        return $this->hasMany(ComplaintAttachment::class);
+    }
+
+    /**
+     * Get the first attachment for the complaint.
+     */
+    public function attachment()
+    {
+        return $this->hasOne(ComplaintAttachment::class);
     }
 }

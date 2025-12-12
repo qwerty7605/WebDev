@@ -18,6 +18,8 @@ export class ResetPasswordComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   isLoading = false;
+  showPassword = false;
+  showPasswordConfirmation = false;
 
   constructor(
     private authService: AuthService,
@@ -83,5 +85,13 @@ export class ResetPasswordComponent implements OnInit {
         }
       }
     });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  togglePasswordConfirmationVisibility(): void {
+    this.showPasswordConfirmation = !this.showPasswordConfirmation;
   }
 }

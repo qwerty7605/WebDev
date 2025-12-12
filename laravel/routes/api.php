@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/complaints', [ComplaintController::class, 'store']);
     Route::get('/complaints', [ComplaintController::class, 'getUserComplaints']);
     Route::get('/complaints/{id}', [ComplaintController::class, 'show']);
+    Route::delete('/complaints/{id}', [ComplaintController::class, 'destroy']);
 
     // Message routes (for both users and admins)
     Route::get('/complaints/{id}/messages', [ComplaintMessageController::class, 'index']);

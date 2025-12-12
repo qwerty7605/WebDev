@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ComplaintService, Complaint } from '../../services/complaint';
 import { ComplaintChat } from '../complaint-chat/complaint-chat';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-complaint-detail',
@@ -16,6 +17,7 @@ export class AdminComplaintDetailComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   isUpdating = false;
+  apiUrl = environment.apiUrl;
 
   updateForm = {
     status: '',
@@ -37,11 +39,17 @@ export class AdminComplaintDetailComponent implements OnInit {
   }
 
   loadComplaint(id: number): void {
-    this.complaintService.getComplaintById(id).subscribe({
+    this.complaintService.getAdminComplaintById(id).subscribe({
       next: (response) => {
         this.complaint = response.complaint;
         this.updateForm.status = this.complaint.status;
         this.isLoading = false;
+
+        // Debug logging
+        if (this.complaint.attachment) {
+          console.log('Attachment from API:', this.complaint.attachment);
+          console.log('Generated image URL:', this.getAttachmentUrl());
+        }
       },
       error: (error) => {
         console.error('Error loading complaint:', error);
@@ -85,6 +93,35 @@ export class AdminComplaintDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/admin/complaints']);
+  }
+
+  getImageUrl(filePath: string): string {
+    // Remove /api from apiUrl and append storage path
+    const baseUrl = this.apiUrl.replace('/api', '');
+    return `${baseUrl}/storage/${filePath}`;
+  }
+
+  getAttachmentUrl(): string | null {
+    if (!this.complaint?.attachment) {
+      return null;
+    }
+    return this.getImageUrl(this.complaint.attachment.file_path);
+  }
+
+  isImage(): boolean {
+    if (!this.complaint?.attachment) {
+      return false;
+    }
+    const imageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    return imageTypes.includes(this.complaint.attachment.mime_type);
+  }
+
+  isVideo(): boolean {
+    if (!this.complaint?.attachment) {
+      return false;
+    }
+    const videoTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/x-ms-wmv', 'video/webm'];
+    return videoTypes.includes(this.complaint.attachment.mime_type);
   }
 
   getStatusClass(status: string): string {

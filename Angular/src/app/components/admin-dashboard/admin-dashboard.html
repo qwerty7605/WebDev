@@ -93,7 +93,7 @@
       </div>
 
       <div class="row g-4">
-        <div class="col-lg-6">
+        <div class="col-12">
           <div class="card shadow-sm">
             <div class="card-body">
               <h3 class="h5 card-title mb-4">Complaints by Category</h3>
@@ -107,31 +107,6 @@
                       </div>
                     </div>
                     <span class="badge bg-secondary ms-3">{{ cat.count }}</span>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-6">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h3 class="h5 card-title mb-4">Complaints by Priority</h3>
-              <div class="list-group list-group-flush">
-                @for (priority of statistics.by_priority; track $index) {
-                  <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                    <div class="flex-grow-1">
-                      <div class="mb-2">{{ priority.priority }}</div>
-                      <div class="progress" style="height: 8px;">
-                        <div class="progress-bar"
-                             [style.width.%]="(priority.count / statistics.total) * 100"
-                             [class.bg-danger]="priority.priority === 'High'"
-                             [class.bg-warning]="priority.priority === 'Medium'"
-                             [class.bg-success]="priority.priority === 'Low'"></div>
-                      </div>
-                    </div>
-                    <span class="badge bg-secondary ms-3">{{ priority.count }}</span>
                   </div>
                 }
               </div>

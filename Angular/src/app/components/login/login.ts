@@ -14,6 +14,7 @@ export class LoginComponent {
   password = '';
   errorMessage = '';
   isLoading = false;
+  showPassword = false;
 
   constructor(
     private authService: AuthService,
@@ -49,6 +50,10 @@ export class LoginComponent {
         this.errorMessage = error.error?.message || 'Login failed. Please check your credentials.';
       }
     });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   private isEmailFormat(value: string): boolean {

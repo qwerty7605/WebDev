@@ -10,6 +10,17 @@ export interface Category {
   is_active: boolean;
 }
 
+export interface ComplaintAttachment {
+  id: number;
+  complaint_id: number;
+  file_name: string;
+  file_path: string;
+  mime_type: string;
+  file_size: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Complaint {
   id: number;
   user_id: number;
@@ -29,6 +40,7 @@ export interface Complaint {
   user?: any;
   assignedAdmin?: Admin;
   updates?: ComplaintUpdate[];
+  attachment?: ComplaintAttachment;
 }
 
 export interface Admin {
@@ -55,7 +67,6 @@ export interface ComplaintFormData {
   category_id: number;
   subject: string;
   description: string;
-  priority: 'Low' | 'Medium' | 'High';
   assigned_to?: number;
   is_anonymous?: boolean;
 }
@@ -93,6 +104,16 @@ export class ComplaintService {
   }
 
   /**
+   * Submit a new complaint with file attachment
+   */
+  submitComplaintWithFile(formData: FormData): Observable<{ message: string; complaint: Complaint }> {
+    return this.http.post<{ message: string; complaint: Complaint }>(
+      `${this.apiUrl}/complaints`,
+      formData
+    );
+  }
+
+  /**
    * Get user's complaints
    */
   getUserComplaints(): Observable<{ complaints: Complaint[] }> {
@@ -104,6 +125,13 @@ export class ComplaintService {
    */
   getComplaintById(id: number): Observable<{ complaint: Complaint }> {
     return this.http.get<{ complaint: Complaint }>(`${this.apiUrl}/complaints/${id}`);
+  }
+
+  /**
+   * Get single complaint details (Admin)
+   */
+  getAdminComplaintById(id: number): Observable<{ complaint: Complaint }> {
+    return this.http.get<{ complaint: Complaint }>(`${this.apiUrl}/admin/complaints/${id}`);
   }
 
   /**
@@ -145,5 +173,12 @@ export class ComplaintService {
    */
   getStatistics(): Observable<any> {
     return this.http.get(`${this.apiUrl}/admin/statistics`);
+  }
+
+  /**
+   * Delete complaint (User only - Pending complaints only)
+   */
+  deleteComplaint(id: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/complaints/${id}`);
   }
 }

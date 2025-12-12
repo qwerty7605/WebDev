@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Complaint;
 use App\Models\ComplaintCategory;
+use App\Models\ComplaintAttachment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -31,9 +32,9 @@ class ComplaintController extends Controller
             'category_id' => 'required|exists:complaint_categories,id',
             'subject' => 'required|string|max:255',
             'description' => 'required|string',
-            'priority' => 'required|in:Low,Medium,High',
             'assigned_to' => 'nullable|exists:admins,id',
             'is_anonymous' => 'nullable|boolean',
+            'attachment' => 'nullable|file|mimes:jpeg,jpg,png,mp4,mov,avi,wmv,webm|max:51200', // max 50MB
         ]);
 
         $user = $request->user();
@@ -41,6 +42,7 @@ class ComplaintController extends Controller
         // Generate unique complaint number
         $complaintNumber = 'CMP-' . date('Ymd') . '-' . strtoupper(Str::random(6));
 
+        // Create the complaint first
         $complaint = Complaint::create([
             'user_id' => $user->id,
             'is_anonymous' => $request->is_anonymous ?? false,
@@ -48,12 +50,28 @@ class ComplaintController extends Controller
             'complaint_number' => $complaintNumber,
             'subject' => $request->subject,
             'description' => $request->description,
-            'priority' => $request->priority,
+            'priority' => 'Medium',
             'status' => 'Pending',
             'assigned_to' => $request->assigned_to,
         ]);
 
-        $complaint->load(['category', 'user', 'assignedAdmin']);
+        // Handle file upload and create attachment record
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('complaints', $filename, 'public');
+
+            // Create attachment record
+            ComplaintAttachment::create([
+                'complaint_id' => $complaint->id,
+                'file_name' => $file->getClientOriginalName(),
+                'file_path' => $filePath,
+                'mime_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+            ]);
+        }
+
+        $complaint->load(['category', 'user', 'assignedAdmin', 'attachment']);
 
         return response()->json([
             'message' => 'Complaint submitted successfully',
@@ -69,7 +87,7 @@ class ComplaintController extends Controller
         $user = $request->user();
 
         $complaints = Complaint::where('user_id', $user->id)
-            ->with(['category', 'assignedAdmin', 'updates.admin'])
+            ->with(['category', 'assignedAdmin', 'updates.admin', 'attachment'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -85,13 +103,50 @@ class ComplaintController extends Controller
     {
         $user = $request->user();
 
-        $complaint = Complaint::with(['category', 'user', 'assignedAdmin', 'updates.admin'])
-            ->where('id', $id)
-            ->where('user_id', $user->id)
-            ->firstOrFail();
+        $query = Complaint::with(['category', 'user', 'assignedAdmin', 'updates.admin', 'attachment'])
+            ->where('id', $id);
+
+        // Only filter by user_id if the authenticated user is not an admin
+        if (!($user instanceof \App\Models\Admin)) {
+            $query->where('user_id', $user->id);
+        }
+
+        $complaint = $query->firstOrFail();
 
         return response()->json([
             'complaint' => $complaint
+        ], 200);
+    }
+
+    /**
+     * Delete complaint (User only - Pending complaints only)
+     */
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $complaint = Complaint::where('id', $id)
+            ->where('user_id', $user->id)
+            ->with('attachment')
+            ->firstOrFail();
+
+        // Only allow deletion of pending complaints
+        if ($complaint->status !== 'Pending') {
+            return response()->json([
+                'message' => 'Only pending complaints can be deleted. This complaint is already ' . $complaint->status . '.'
+            ], 403);
+        }
+
+        // Delete attachment file if exists
+        if ($complaint->attachment) {
+            \Storage::disk('public')->delete($complaint->attachment->file_path);
+            $complaint->attachment->delete();
+        }
+
+        $complaint->delete();
+
+        return response()->json([
+            'message' => 'Complaint deleted successfully'
         ], 200);
     }
 
@@ -103,7 +158,7 @@ class ComplaintController extends Controller
         $status = $request->query('status');
         $category = $request->query('category');
 
-        $query = Complaint::with(['category', 'user', 'assignedAdmin', 'updates']);
+        $query = Complaint::with(['category', 'user', 'assignedAdmin', 'updates', 'attachment']);
 
         if ($status) {
             $query->where('status', $status);
@@ -152,7 +207,7 @@ class ComplaintController extends Controller
             'resolution_details' => $request->resolution_details,
         ]);
 
-        $complaint->load(['category', 'user', 'updates.admin']);
+        $complaint->load(['category', 'user', 'updates.admin', 'attachment']);
 
         return response()->json([
             'message' => 'Complaint status updated successfully',
@@ -173,9 +228,6 @@ class ComplaintController extends Controller
             'by_category' => Complaint::selectRaw('category_id, count(*) as count')
                 ->groupBy('category_id')
                 ->with('category:id,category_name')
-                ->get(),
-            'by_priority' => Complaint::selectRaw('priority, count(*) as count')
-                ->groupBy('priority')
                 ->get(),
         ];
 

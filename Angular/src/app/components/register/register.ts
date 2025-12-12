@@ -21,6 +21,8 @@ export class RegisterComponent {
   };
   errorMessage = '';
   isLoading = false;
+  showPassword = false;
+  showPasswordConfirmation = false;
 
   constructor(
     private authService: AuthService,
@@ -64,5 +66,13 @@ export class RegisterComponent {
         }
       }
     });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  togglePasswordConfirmationVisibility(): void {
+    this.showPasswordConfirmation = !this.showPasswordConfirmation;
   }
 }

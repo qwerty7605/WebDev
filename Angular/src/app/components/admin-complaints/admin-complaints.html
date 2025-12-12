@@ -6,38 +6,73 @@
           ← Dashboard
         </button>
         <h1 class="h3 mb-0">All Complaints</h1>
+        <small class="text-muted">Sorted by First Come First Serve (FIFO)</small>
       </div>
     </div>
 
-    <div class="btn-group mb-4" role="group">
-      <button
-        [class.active]="filterStatus === 'all'"
-        (click)="filterByStatus('all')"
-        class="btn btn-outline-secondary"
-      >
-        All ({{ complaints.length }})
-      </button>
-      <button
-        [class.active]="filterStatus === 'Pending'"
-        (click)="filterByStatus('Pending')"
-        class="btn btn-outline-secondary"
-      >
-        Pending
-      </button>
-      <button
-        [class.active]="filterStatus === 'In Progress'"
-        (click)="filterByStatus('In Progress')"
-        class="btn btn-outline-secondary"
-      >
-        In Progress
-      </button>
-      <button
-        [class.active]="filterStatus === 'Resolved'"
-        (click)="filterByStatus('Resolved')"
-        class="btn btn-outline-secondary"
-      >
-        Resolved
-      </button>
+    <div class="mb-4">
+      <div class="row g-3">
+        <div class="col-lg-6">
+          <div class="position-relative">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search by complaint number, subject, category, name, or date..."
+              [(ngModel)]="searchQuery"
+              (input)="onSearchInput($event)"
+              (focus)="onSearchFocus()"
+              (blur)="onSearchBlur()"
+            />
+            @if (showSuggestions && searchSuggestions.length > 0) {
+              <div class="position-absolute w-100 bg-white border rounded shadow-sm mt-1" style="z-index: 1000; max-height: 300px; overflow-y: auto;">
+                <div class="list-group list-group-flush">
+                  @for (suggestion of searchSuggestions; track suggestion) {
+                    <button
+                      type="button"
+                      class="list-group-item list-group-item-action"
+                      (click)="selectSuggestion(suggestion)"
+                    >
+                      {{ suggestion }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="btn-group w-100" role="group">
+            <button
+              [class.active]="filterStatus === 'all'"
+              (click)="filterByStatus('all')"
+              class="btn btn-outline-secondary"
+            >
+              All ({{ complaints.length }})
+            </button>
+            <button
+              [class.active]="filterStatus === 'Pending'"
+              (click)="filterByStatus('Pending')"
+              class="btn btn-outline-secondary"
+            >
+              Pending
+            </button>
+            <button
+              [class.active]="filterStatus === 'In Progress'"
+              (click)="filterByStatus('In Progress')"
+              class="btn btn-outline-secondary"
+            >
+              In Progress
+            </button>
+            <button
+              [class.active]="filterStatus === 'Resolved'"
+              (click)="filterByStatus('Resolved')"
+              class="btn btn-outline-secondary"
+            >
+              Resolved
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     @if (isLoading) {
@@ -77,7 +112,7 @@
                 <h3 class="h5 card-title">{{ complaint.subject }}</h3>
 
                 <div class="row g-2 mb-3">
-                  <div class="col-md-3">
+                  <div class="col-md-4">
                     <small class="text-muted">Submitted by:</small>
                     @if (complaint.is_anonymous) {
                       <div class="fw-bold">
@@ -87,18 +122,12 @@
                       <div class="fw-bold">{{ complaint.user?.full_name }}</div>
                     }
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-md-4">
                     <small class="text-muted">Category:</small>
                     <div>{{ complaint.category?.category_name }}</div>
                   </div>
-                  <div class="col-md-3">
-                    <small class="text-muted">Priority:</small>
-                    <div [class]="getPriorityClass(complaint.priority)">
-                      {{ complaint.priority }}
-                    </div>
-                  </div>
                   @if (complaint.assignedAdmin) {
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                       <small class="text-muted">Assigned to:</small>
                       <div>{{ complaint.assignedAdmin.full_name }}</div>
                     </div>

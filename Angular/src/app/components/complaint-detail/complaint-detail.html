@@ -1,9 +1,16 @@
 <div class="min-vh-100 bg-light py-4">
   @if (!isLoading && complaint) {
     <div class="container">
-      <button class="btn btn-outline-secondary mb-4" (click)="goBack()">
-        ← Back to Complaints
-      </button>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <button class="btn btn-outline-secondary" (click)="goBack()">
+          ← Back to Complaints
+        </button>
+        @if (complaint.status === 'Pending') {
+          <button class="btn btn-danger" (click)="deleteComplaint()">
+            Delete Complaint
+          </button>
+        }
+      </div>
 
       <div class="card shadow">
         <div class="card-body p-4">
@@ -21,14 +28,6 @@
             <div class="col-md-6">
               <small class="text-muted d-block">Category:</small>
               <strong>{{ complaint.category?.category_name }}</strong>
-            </div>
-            <div class="col-md-6">
-              <small class="text-muted d-block">Priority:</small>
-              <strong [class.text-danger]="complaint.priority === 'High'"
-                      [class.text-warning]="complaint.priority === 'Medium'"
-                      [class.text-success]="complaint.priority === 'Low'">
-                {{ complaint.priority }}
-              </strong>
             </div>
             <div class="col-md-6">
               <small class="text-muted d-block">Submitted:</small>
@@ -52,6 +51,47 @@
             <h3 class="h5 mb-2">Description</h3>
             <p class="mb-0">{{ complaint.description }}</p>
           </div>
+
+          @if (complaint.attachment) {
+            <div class="mb-4">
+              <h3 class="h5 mb-2">Evidence/Attachment</h3>
+              <div class="card">
+                @if (isImage()) {
+                  <img
+                    [src]="getAttachmentUrl()"
+                    [alt]="complaint.attachment.file_name"
+                    class="card-img-top"
+                    style="max-height: 500px; object-fit: contain; background-color: #f8f9fa;"
+                    (error)="$event.target.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZSBub3QgYXZhaWxhYmxlPC90ZXh0Pjwvc3ZnPg=='"
+                  />
+                }
+                @if (isVideo()) {
+                  <video
+                    [src]="getAttachmentUrl()"
+                    controls
+                    class="card-img-top"
+                    style="max-height: 500px; background-color: #000;"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                }
+                <div class="card-body">
+                  <p class="mb-2"><strong>File Name:</strong> {{ complaint.attachment.file_name }}</p>
+                  <small class="text-muted d-block">File Type: {{ complaint.attachment.mime_type }}</small>
+                  <small class="text-muted d-block">File Size: {{ (complaint.attachment.file_size / 1024 / 1024).toFixed(2) }} MB</small>
+                  <small class="text-muted d-block">Storage Path: {{ complaint.attachment.file_path }}</small>
+                  <a [href]="getAttachmentUrl()" target="_blank" class="btn btn-sm btn-primary mt-2">
+                    @if (isImage()) {
+                      <span>Open Image in New Tab</span>
+                    }
+                    @if (isVideo()) {
+                      <span>Open Video in New Tab</span>
+                    }
+                  </a>
+                </div>
+              </div>
+            </div>
+          }
 
           @if (complaint.updates && complaint.updates.length > 0) {
             <div>

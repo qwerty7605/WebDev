@@ -1,32 +1,3 @@
-# Complaint Management System - Setup Guide
-
-This guide will help you set up the Complaint Management System on your local machine.
-
-## Prerequisites
-
-- Docker and Docker Compose installed
-- Node.js 18+ and npm installed (for Angular development)
-- Git installed
-
-## Project Structure
-
-```
-.
-├── Angular/          # Frontend (Angular)
-└── laravel/          # Backend (Laravel API)
-```
-
-## Setup Instructions
-
-### 1. Clone the Repository
-
-```bash
-git clone <your-repository-url>
-cd <repository-folder>
-```
-
-### 2. Backend Setup (Laravel)
-
 #### 2.1. Configure Environment File
 
 ```bash
@@ -61,12 +32,6 @@ DB_PASSWORD=complaint_system
 ```bash
 docker-compose up -d
 ```
-
-This will start:
-- **PHP-FPM** container (Laravel application)
-- **Nginx** container (Web server) - Port 80
-- **MySQL** container - Port 3306
-- **phpMyAdmin** container - Port 8080
 
 #### 2.4. Install Dependencies & Setup Laravel
 
